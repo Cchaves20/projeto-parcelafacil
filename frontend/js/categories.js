@@ -1,4 +1,3 @@
-requireAuth();
 renderSidebar("categories.html");
 
 const categoryForm = document.getElementById("category-form");

@@ -1,4 +1,3 @@
-requireAuth();
 renderSidebar("reports.html");
 
 const yearSelect = document.getElementById("report-year");

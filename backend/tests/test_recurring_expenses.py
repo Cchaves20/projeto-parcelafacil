@@ -1,7 +1,6 @@
-def test_create_recurring_expense(client, auth_headers):
+def test_create_recurring_expense(client):
     response = client.post(
         "/recurring-expenses",
-        headers=auth_headers,
         json={
             "name": "Netflix",
             "amount": "39.90",
@@ -16,10 +15,9 @@ def test_create_recurring_expense(client, auth_headers):
     assert body["active"] is True
 
 
-def test_create_recurring_expense_with_invalid_billing_day(client, auth_headers):
+def test_create_recurring_expense_with_invalid_billing_day(client):
     response = client.post(
         "/recurring-expenses",
-        headers=auth_headers,
         json={
             "name": "Academia",
             "amount": "100.00",
@@ -31,10 +29,9 @@ def test_create_recurring_expense_with_invalid_billing_day(client, auth_headers)
     assert response.status_code == 400
 
 
-def test_list_recurring_expenses(client, auth_headers):
+def test_list_recurring_expenses(client):
     client.post(
         "/recurring-expenses",
-        headers=auth_headers,
         json={
             "name": "Spotify",
             "amount": "21.90",
@@ -43,6 +40,6 @@ def test_list_recurring_expenses(client, auth_headers):
             "start_date": "2026-01-01",
         },
     )
-    response = client.get("/recurring-expenses", headers=auth_headers)
+    response = client.get("/recurring-expenses")
     assert response.status_code == 200
     assert len(response.json()) == 1

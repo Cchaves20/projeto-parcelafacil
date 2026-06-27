@@ -1,4 +1,3 @@
-requireAuth();
 renderSidebar("calendar.html");
 
 const monthSelect = document.getElementById("month-select");

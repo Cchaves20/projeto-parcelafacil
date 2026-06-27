@@ -1,4 +1,3 @@
-requireAuth();
 renderSidebar("recurring-expenses.html");
 
 const recurringForm = document.getElementById("recurring-form");

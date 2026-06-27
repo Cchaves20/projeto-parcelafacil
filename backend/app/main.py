@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401 - ensures models are registered on Base before create_all
 from app.database import Base, engine
 from app.routes import (
-    auth_routes,
     calendar_routes,
     category_routes,
     dashboard_routes,
@@ -32,7 +31,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
 app.include_router(category_routes.router)
 app.include_router(recurring_expense_routes.router)

@@ -3,22 +3,19 @@ from decimal import Decimal
 from app.services import currency_service
 
 
-def test_dashboard_summary_converts_usd_income_to_brl(client, auth_headers, monkeypatch):
+def test_dashboard_summary_converts_usd_income_to_brl(client, monkeypatch):
     monkeypatch.setattr(currency_service, "get_usd_to_brl_rate", lambda: Decimal("5.00"))
 
     client.post(
         "/users/me/incomes",
-        headers=auth_headers,
         json={"description": "Salário", "amount": "1000.00", "currency": "BRL"},
     )
     client.post(
         "/users/me/incomes",
-        headers=auth_headers,
         json={"description": "Freela", "amount": "200.00", "currency": "USD"},
     )
     client.post(
         "/recurring-expenses",
-        headers=auth_headers,
         json={
             "name": "Netflix",
             "amount": "50.00",
@@ -28,7 +25,7 @@ def test_dashboard_summary_converts_usd_income_to_brl(client, auth_headers, monk
         },
     )
 
-    response = client.get("/dashboard/summary", headers=auth_headers, params={"year": 2026, "month": 1})
+    response = client.get("/dashboard/summary", params={"year": 2026, "month": 1})
     assert response.status_code == 200
     body = response.json()
 
@@ -37,7 +34,7 @@ def test_dashboard_summary_converts_usd_income_to_brl(client, auth_headers, monk
     assert body["committed_percentage"] == "2.50"
 
 
-def test_dashboard_summary_with_no_income_returns_zero_percentage(client, auth_headers):
-    response = client.get("/dashboard/summary", headers=auth_headers, params={"year": 2026, "month": 1})
+def test_dashboard_summary_with_no_income_returns_zero_percentage(client):
+    response = client.get("/dashboard/summary", params={"year": 2026, "month": 1})
     assert response.status_code == 200
     assert response.json()["committed_percentage"] == "0"

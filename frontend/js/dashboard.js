@@ -1,4 +1,3 @@
-requireAuth();
 renderSidebar("dashboard.html");
 
 const monthSelect = document.getElementById("month-select");

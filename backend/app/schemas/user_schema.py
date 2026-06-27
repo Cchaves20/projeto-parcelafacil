@@ -3,12 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
-class UserCreate(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-
-
 class UserRead(BaseModel):
     id: int
     name: str

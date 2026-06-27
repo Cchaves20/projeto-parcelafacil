@@ -2,36 +2,14 @@ const API_BASE_URL = window.location.hostname === "localhost" || window.location
   ? "http://localhost:8000"
   : "";
 
-function getToken() {
-  return localStorage.getItem("token");
-}
-
-function setToken(token) {
-  localStorage.setItem("token", token);
-}
-
-function clearToken() {
-  localStorage.removeItem("token");
-}
-
-async function apiRequest(path, { method = "GET", body, auth = true } = {}) {
+async function apiRequest(path, { method = "GET", body } = {}) {
   const headers = { "Content-Type": "application/json" };
-  if (auth) {
-    const token = getToken();
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
-
-  if (response.status === 401) {
-    clearToken();
-    window.location.href = "/pages/login.html";
-    throw new Error("Não autenticado");
-  }
 
   if (!response.ok) {
     let detail = "Erro inesperado";
@@ -49,8 +27,6 @@ async function apiRequest(path, { method = "GET", body, auth = true } = {}) {
 }
 
 const api = {
-  register: (payload) => apiRequest("/auth/register", { method: "POST", body: payload, auth: false }),
-  login: (payload) => apiRequest("/auth/login", { method: "POST", body: payload, auth: false }),
   me: () => apiRequest("/users/me"),
 
   listIncomes: () => apiRequest("/users/me/incomes"),

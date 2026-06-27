@@ -1,4 +1,3 @@
-requireAuth();
 renderSidebar("installment-purchases.html");
 
 const purchaseForm = document.getElementById("purchase-form");

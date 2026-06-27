@@ -19,10 +19,6 @@ function renderSidebar(activeHref) {
     })
   ));
 
-  const logoutBtn = el("button", { class: "btn logout-btn", text: "Sair" });
-  logoutBtn.addEventListener("click", logout);
-
   sidebar.appendChild(el("h2", { text: "ParcelaFácil" }));
   sidebar.appendChild(nav);
-  sidebar.appendChild(logoutBtn);
 }
