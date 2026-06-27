@@ -1,0 +1,35 @@
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field label {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.form-field input,
+.form-field select {
+  padding: 9px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  min-width: 140px;
+}
+
+.form-field-grow {
+  flex: 1;
+  min-width: 220px;
+}
+
+.inline-form .btn {
+  height: 38px;
+}

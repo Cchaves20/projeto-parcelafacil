@@ -1,0 +1,75 @@
+const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:8000"
+  : "";
+
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+function setToken(token) {
+  localStorage.setItem("token", token);
+}
+
+function clearToken() {
+  localStorage.removeItem("token");
+}
+
+async function apiRequest(path, { method = "GET", body, auth = true } = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (auth) {
+    const token = getToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+  if (response.status === 401) {
+    clearToken();
+    window.location.href = "/pages/login.html";
+    throw new Error("Não autenticado");
+  }
+
+  if (!response.ok) {
+    let detail = "Erro inesperado";
+    try {
+      const data = await response.json();
+      detail = data.detail || detail;
+    } catch (_) {
+      // resposta sem corpo JSON
+    }
+    throw new Error(detail);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+const api = {
+  register: (payload) => apiRequest("/auth/register", { method: "POST", body: payload, auth: false }),
+  login: (payload) => apiRequest("/auth/login", { method: "POST", body: payload, auth: false }),
+  me: () => apiRequest("/users/me"),
+
+  listIncomes: () => apiRequest("/users/me/incomes"),
+  createIncome: (payload) => apiRequest("/users/me/incomes", { method: "POST", body: payload }),
+  deleteIncome: (id) => apiRequest(`/users/me/incomes/${id}`, { method: "DELETE" }),
+
+  listCategories: () => apiRequest("/categories"),
+  createCategory: (payload) => apiRequest("/categories", { method: "POST", body: payload }),
+  deleteCategory: (id) => apiRequest(`/categories/${id}`, { method: "DELETE" }),
+
+  listRecurringExpenses: () => apiRequest("/recurring-expenses"),
+  createRecurringExpense: (payload) => apiRequest("/recurring-expenses", { method: "POST", body: payload }),
+  deleteRecurringExpense: (id) => apiRequest(`/recurring-expenses/${id}`, { method: "DELETE" }),
+
+  listInstallmentPurchases: () => apiRequest("/installment-purchases"),
+  createInstallmentPurchase: (payload) => apiRequest("/installment-purchases", { method: "POST", body: payload }),
+  deleteInstallmentPurchase: (id) => apiRequest(`/installment-purchases/${id}`, { method: "DELETE" }),
+
+  getDashboardSummary: (year, month) => apiRequest(`/dashboard/summary?year=${year}&month=${month}`),
+  getAnnualReport: (year) => apiRequest(`/reports/annual?year=${year}`),
+  getCalendar: (startDate, endDate) => apiRequest(`/calendar?start_date=${startDate}&end_date=${endDate}`),
+};

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendário - ParcelaFácil</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/calendar.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Calendário financeiro</h1>
+        <div class="month-selector">
+          <select id="month-select"></select>
+          <select id="year-select"></select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="calendar-list" id="calendar-list"></div>
+        <p id="calendar-empty" class="empty-state hidden">Nenhum vencimento neste período.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/calendar.js"></script>
+</body>
+</html>
