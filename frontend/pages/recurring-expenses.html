@@ -41,17 +41,37 @@
             </select>
           </div>
           <div class="form-field">
+            <label for="recurring-frequency">Frequência</label>
+            <select id="recurring-frequency">
+              <option value="MONTHLY">Mensal</option>
+              <option value="WEEKLY">Semanal</option>
+            </select>
+          </div>
+
+          <div class="form-field" id="monthly-fields">
             <label for="recurring-billing-day">Dia de cobrança</label>
-            <input type="number" id="recurring-billing-day" min="1" max="31" required />
+            <input type="number" id="recurring-billing-day" min="1" max="31" />
           </div>
-          <div class="form-field">
-            <label for="recurring-start-date">Início</label>
-            <input type="date" id="recurring-start-date" required />
+
+          <div class="form-field hidden" id="weekly-fields">
+            <label>Dias da semana</label>
+            <div class="weekday-checkboxes">
+              <label><input type="checkbox" value="0" /> Seg</label>
+              <label><input type="checkbox" value="1" /> Ter</label>
+              <label><input type="checkbox" value="2" /> Qua</label>
+              <label><input type="checkbox" value="3" /> Qui</label>
+              <label><input type="checkbox" value="4" /> Sex</label>
+              <label><input type="checkbox" value="5" /> Sáb</label>
+              <label><input type="checkbox" value="6" /> Dom</label>
+            </div>
           </div>
-          <div class="form-field">
-            <label for="recurring-end-date">Fim (opcional)</label>
-            <input type="date" id="recurring-end-date" />
+
+          <div class="form-field form-field-grow">
+            <label>Períodos ativos</label>
+            <div id="periods-container"></div>
+            <button type="button" id="add-period-btn" class="btn">+ Adicionar período</button>
           </div>
+
           <button type="submit" class="btn btn-primary">Adicionar</button>
         </form>
         <p id="recurring-error" class="form-error hidden"></p>
@@ -62,9 +82,8 @@
               <th>Nome</th>
               <th>Valor</th>
               <th>Moeda</th>
-              <th>Dia</th>
-              <th>Início</th>
-              <th>Fim</th>
+              <th>Frequência</th>
+              <th>Períodos ativos</th>
               <th></th>
             </tr>
           </thead>

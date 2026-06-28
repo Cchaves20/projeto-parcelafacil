@@ -4,7 +4,7 @@ from decimal import Decimal
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.enums import Currency
+from app.models.enums import Currency, Frequency
 from app.models.recurring_expense_model import RecurringExpense
 from app.repositories.recurring_expense_repository import (
     create_recurring_expense,
@@ -14,7 +14,7 @@ from app.repositories.recurring_expense_repository import (
     list_recurring_expenses_by_user,
 )
 from app.services.currency_service import to_brl
-from app.utils.date_utils import next_billing_date
+from app.utils.date_utils import month_range, monthly_occurrences, weekday_occurrences
 
 
 def add_recurring_expense(
@@ -23,22 +23,37 @@ def add_recurring_expense(
     name: str,
     amount: Decimal,
     currency: Currency,
-    billing_day: int,
-    start_date: date,
-    end_date: date | None,
+    frequency: Frequency,
+    billing_day: int | None,
+    weekdays: list[int] | None,
+    periods: list[dict],
     category_id: int | None,
 ) -> RecurringExpense:
-    if not 1 <= billing_day <= 31:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dia de cobrança inválido")
+    if not periods:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Informe ao menos um período ativo")
+    for period in periods:
+        if period["end_date"] and period["end_date"] < period["start_date"]:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Período inválido")
+
+    if frequency == Frequency.MONTHLY:
+        if billing_day is None or not 1 <= billing_day <= 31:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dia de cobrança inválido")
+        weekdays = None
+    else:
+        if not weekdays or any(not 0 <= day <= 6 for day in weekdays):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dias da semana inválidos")
+        billing_day = None
+
     return create_recurring_expense(
         db,
         user_id=user_id,
         name=name,
         amount=amount,
         currency=currency,
+        frequency=frequency,
         billing_day=billing_day,
-        start_date=start_date,
-        end_date=end_date,
+        weekdays=weekdays,
+        periods=periods,
         category_id=category_id,
     )
 
@@ -54,16 +69,35 @@ def remove_recurring_expense(db: Session, user_id: int, expense_id: int) -> None
     delete_recurring_expense(db, expense)
 
 
+def expense_occurrences_in_range(expense: RecurringExpense, range_start: date, range_end: date) -> list[date]:
+    occurrences: set[date] = set()
+    for period in expense.periods:
+        effective_start = max(period.start_date, range_start)
+        effective_end = min(period.end_date, range_end) if period.end_date else range_end
+        if effective_start > effective_end:
+            continue
+        if expense.frequency == Frequency.WEEKLY:
+            for weekday in expense.weekdays or []:
+                occurrences.update(weekday_occurrences(effective_start, effective_end, weekday))
+        else:
+            occurrences.update(monthly_occurrences(effective_start, effective_end, expense.billing_day))
+    return sorted(occurrences)
+
+
 def total_recurring_expenses_brl_for_month(db: Session, user_id: int, year: int, month: int) -> Decimal:
-    period_start = date(year, month, 1)
-    period_end = date(year, month, 28)
+    period_start, period_end = month_range(year, month)
     expenses = list_active_recurring_expenses_in_period(db, user_id, period_start, period_end)
-    return sum((to_brl(expense.amount, expense.currency) for expense in expenses), Decimal("0"))
+    total = Decimal("0")
+    for expense in expenses:
+        occurrences = expense_occurrences_in_range(expense, period_start, period_end)
+        total += to_brl(expense.amount, expense.currency) * len(occurrences)
+    return total
 
 
 def expenses_due_in_period(db: Session, user_id: int, period_start: date, period_end: date) -> list[dict]:
     expenses = list_active_recurring_expenses_in_period(db, user_id, period_start, period_end)
-    return [
-        {"name": expense.name, "amount": expense.amount, "currency": expense.currency, "due_date": next_billing_date(period_start, expense.billing_day)}
-        for expense in expenses
-    ]
+    items = []
+    for expense in expenses:
+        for due_date in expense_occurrences_in_range(expense, period_start, period_end):
+            items.append({"name": expense.name, "amount": expense.amount, "currency": expense.currency, "due_date": due_date})
+    return items

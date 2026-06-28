@@ -24,9 +24,10 @@ def create_recurring_expense(
         name=payload.name,
         amount=payload.amount,
         currency=payload.currency,
+        frequency=payload.frequency,
         billing_day=payload.billing_day,
-        start_date=payload.start_date,
-        end_date=payload.end_date,
+        weekdays=payload.weekdays,
+        periods=[period.model_dump() for period in payload.periods],
         category_id=payload.category_id,
     )
 

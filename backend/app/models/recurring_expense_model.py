@@ -1,8 +1,8 @@
-from sqlalchemy import Boolean, Column, Date, DateTime, Enum, ForeignKey, Integer, Numeric, String, func
+from sqlalchemy import JSON, Boolean, Column, Enum, ForeignKey, Integer, Numeric, String, DateTime, func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
-from app.models.enums import Currency
+from app.models.enums import Currency, Frequency
 
 
 class RecurringExpense(Base):
@@ -14,11 +14,14 @@ class RecurringExpense(Base):
     name = Column(String(150), nullable=False)
     amount = Column(Numeric(12, 2), nullable=False)
     currency = Column(Enum(Currency), nullable=False, default=Currency.BRL)
-    billing_day = Column(Integer, nullable=False)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=True)
+    frequency = Column(Enum(Frequency), nullable=False, default=Frequency.MONTHLY)
+    billing_day = Column(Integer, nullable=True)
+    weekdays = Column(JSON, nullable=True)
     active = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="recurring_expenses")
     category = relationship("Category", back_populates="recurring_expenses")
+    periods = relationship(
+        "RecurringExpensePeriod", back_populates="recurring_expense", cascade="all, delete-orphan"
+    )
