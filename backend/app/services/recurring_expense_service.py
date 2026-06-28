@@ -12,23 +12,15 @@ from app.repositories.recurring_expense_repository import (
     get_recurring_expense,
     list_active_recurring_expenses_in_period,
     list_recurring_expenses_by_user,
+    update_recurring_expense,
 )
 from app.services.currency_service import to_brl
 from app.utils.date_utils import month_range, monthly_occurrences, weekday_occurrences
 
 
-def add_recurring_expense(
-    db: Session,
-    user_id: int,
-    name: str,
-    amount: Decimal,
-    currency: Currency,
-    frequency: Frequency,
-    billing_day: int | None,
-    weekdays: list[int] | None,
-    periods: list[dict],
-    category_id: int | None,
-) -> RecurringExpense:
+def _validate_recurring_expense(
+    frequency: Frequency, billing_day: int | None, weekdays: list[int] | None, periods: list[dict]
+) -> tuple[int | None, list[int] | None]:
     if not periods:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Informe ao menos um período ativo")
     for period in periods:
@@ -43,6 +35,23 @@ def add_recurring_expense(
         if not weekdays or any(not 0 <= day <= 6 for day in weekdays):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dias da semana inválidos")
         billing_day = None
+
+    return billing_day, weekdays
+
+
+def add_recurring_expense(
+    db: Session,
+    user_id: int,
+    name: str,
+    amount: Decimal,
+    currency: Currency,
+    frequency: Frequency,
+    billing_day: int | None,
+    weekdays: list[int] | None,
+    periods: list[dict],
+    category_id: int | None,
+) -> RecurringExpense:
+    billing_day, weekdays = _validate_recurring_expense(frequency, billing_day, weekdays, periods)
 
     return create_recurring_expense(
         db,
@@ -60,6 +69,39 @@ def add_recurring_expense(
 
 def list_recurring_expenses(db: Session, user_id: int) -> list[RecurringExpense]:
     return list_recurring_expenses_by_user(db, user_id)
+
+
+def edit_recurring_expense(
+    db: Session,
+    user_id: int,
+    expense_id: int,
+    name: str,
+    amount: Decimal,
+    currency: Currency,
+    frequency: Frequency,
+    billing_day: int | None,
+    weekdays: list[int] | None,
+    periods: list[dict],
+    category_id: int | None,
+) -> RecurringExpense:
+    expense = get_recurring_expense(db, user_id, expense_id)
+    if not expense:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Gasto recorrente não encontrado")
+
+    billing_day, weekdays = _validate_recurring_expense(frequency, billing_day, weekdays, periods)
+
+    return update_recurring_expense(
+        db,
+        expense,
+        periods=periods,
+        name=name,
+        amount=amount,
+        currency=currency,
+        frequency=frequency,
+        billing_day=billing_day,
+        weekdays=weekdays,
+        category_id=category_id,
+    )
 
 
 def remove_recurring_expense(db: Session, user_id: int, expense_id: int) -> None:

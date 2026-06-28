@@ -45,6 +45,17 @@ def get_recurring_expense(db: Session, user_id: int, expense_id: int) -> Recurri
     )
 
 
+def update_recurring_expense(
+    db: Session, expense: RecurringExpense, periods: list[dict], **fields
+) -> RecurringExpense:
+    for key, value in fields.items():
+        setattr(expense, key, value)
+    expense.periods = [RecurringExpensePeriod(**period) for period in periods]
+    db.commit()
+    db.refresh(expense)
+    return expense
+
+
 def delete_recurring_expense(db: Session, expense: RecurringExpense) -> None:
     db.delete(expense)
     db.commit()

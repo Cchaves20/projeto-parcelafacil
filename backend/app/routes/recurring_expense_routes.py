@@ -7,6 +7,7 @@ from app.schemas.recurring_expense_schema import RecurringExpenseCreate, Recurri
 from app.services.auth_service import get_current_user
 from app.services.recurring_expense_service import (
     add_recurring_expense,
+    edit_recurring_expense,
     list_recurring_expenses,
     remove_recurring_expense,
 )
@@ -35,6 +36,28 @@ def create_recurring_expense(
 @router.get("", response_model=list[RecurringExpenseRead])
 def get_recurring_expenses(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return list_recurring_expenses(db, current_user.id)
+
+
+@router.put("/{expense_id}", response_model=RecurringExpenseRead)
+def update_recurring_expense_route(
+    expense_id: int,
+    payload: RecurringExpenseCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return edit_recurring_expense(
+        db,
+        user_id=current_user.id,
+        expense_id=expense_id,
+        name=payload.name,
+        amount=payload.amount,
+        currency=payload.currency,
+        frequency=payload.frequency,
+        billing_day=payload.billing_day,
+        weekdays=payload.weekdays,
+        periods=[period.model_dump() for period in payload.periods],
+        category_id=payload.category_id,
+    )
 
 
 @router.delete("/{expense_id}", status_code=status.HTTP_204_NO_CONTENT)

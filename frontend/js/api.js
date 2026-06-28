@@ -29,6 +29,7 @@ const api = {
 
   listIncomes: () => apiRequest("/users/me/incomes"),
   createIncome: (payload) => apiRequest("/users/me/incomes", { method: "POST", body: payload }),
+  updateIncome: (id, payload) => apiRequest(`/users/me/incomes/${id}`, { method: "PUT", body: payload }),
   deleteIncome: (id) => apiRequest(`/users/me/incomes/${id}`, { method: "DELETE" }),
 
   listCategories: () => apiRequest("/categories"),
@@ -37,6 +38,7 @@ const api = {
 
   listRecurringExpenses: () => apiRequest("/recurring-expenses"),
   createRecurringExpense: (payload) => apiRequest("/recurring-expenses", { method: "POST", body: payload }),
+  updateRecurringExpense: (id, payload) => apiRequest(`/recurring-expenses/${id}`, { method: "PUT", body: payload }),
   deleteRecurringExpense: (id) => apiRequest(`/recurring-expenses/${id}`, { method: "DELETE" }),
 
   listInstallmentPurchases: () => apiRequest("/installment-purchases"),

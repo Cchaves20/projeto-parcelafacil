@@ -8,6 +8,10 @@ const incomeForm = document.getElementById("income-form");
 const incomeError = document.getElementById("income-error");
 const incomeTableBody = document.getElementById("income-table-body");
 const incomeEmpty = document.getElementById("income-empty");
+const incomeSubmitBtn = document.getElementById("income-submit-btn");
+const incomeCancelEditBtn = document.getElementById("income-cancel-edit-btn");
+
+let editingIncomeId = null;
 
 const today = new Date();
 
@@ -90,6 +94,16 @@ function renderIncomes(incomes) {
   incomeEmpty.classList.toggle("hidden", incomes.length > 0);
 
   incomes.forEach((income) => {
+    const editBtn = el("button", { class: "table-action", text: "Editar" });
+    editBtn.addEventListener("click", () => startEditIncome(income));
+
+    const removeBtn = el("button", { class: "table-action", text: "Remover" });
+    removeBtn.addEventListener("click", async () => {
+      await api.deleteIncome(income.id);
+      await refreshIncomes();
+      await loadSummary();
+    });
+
     const row = el("tr", {}, [
       el("td", { text: income.description || "—" }),
       el("td", { text: formatCurrency(income.amount, income.currency) }),
@@ -100,21 +114,31 @@ function renderIncomes(incomes) {
         }),
       ]),
       el("td", { text: income.payment_day ? `Dia ${income.payment_day}` : "—" }),
-      el("td", {}, [
-        (() => {
-          const btn = el("button", { class: "table-action", text: "Remover" });
-          btn.addEventListener("click", async () => {
-            await api.deleteIncome(income.id);
-            await refreshIncomes();
-            await loadSummary();
-          });
-          return btn;
-        })(),
-      ]),
+      el("td", {}, [editBtn, removeBtn]),
     ]);
     incomeTableBody.appendChild(row);
   });
 }
+
+function resetIncomeForm() {
+  editingIncomeId = null;
+  incomeForm.reset();
+  incomeSubmitBtn.textContent = "Adicionar";
+  incomeCancelEditBtn.classList.add("hidden");
+}
+
+function startEditIncome(income) {
+  editingIncomeId = income.id;
+  document.getElementById("income-description").value = income.description || "";
+  document.getElementById("income-amount").value = income.amount;
+  document.getElementById("income-currency").value = income.currency;
+  document.getElementById("income-payment-day").value = income.payment_day || "";
+  incomeSubmitBtn.textContent = "Salvar alterações";
+  incomeCancelEditBtn.classList.remove("hidden");
+  incomeForm.scrollIntoView({ behavior: "smooth" });
+}
+
+incomeCancelEditBtn.addEventListener("click", resetIncomeForm);
 
 async function refreshIncomes() {
   const incomes = await api.listIncomes();
@@ -132,8 +156,13 @@ incomeForm.addEventListener("submit", async (event) => {
   const payment_day = paymentDayValue ? Number(paymentDayValue) : null;
 
   try {
-    await api.createIncome({ description: description || null, amount, currency, payment_day });
-    incomeForm.reset();
+    const payload = { description: description || null, amount, currency, payment_day };
+    if (editingIncomeId) {
+      await api.updateIncome(editingIncomeId, payload);
+    } else {
+      await api.createIncome(payload);
+    }
+    resetIncomeForm();
     await refreshIncomes();
     await loadSummary();
   } catch (error) {
