@@ -1,6 +1,14 @@
-const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:8000"
-  : "";
+const API_BASE_URL = (() => {
+  const { hostname, protocol } = window.location;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return "http://localhost:8000";
+  }
+  const forwardedPortMatch = hostname.match(/^(.*-)(\d+)(\.[^.]+\.[^.]+(?:\.[^.]+)?)$/);
+  if (forwardedPortMatch) {
+    return `${protocol}//${forwardedPortMatch[1]}8000${forwardedPortMatch[3]}`;
+  }
+  return "";
+})();
 
 async function apiRequest(path, { method = "GET", body } = {}) {
   const headers = { "Content-Type": "application/json" };
