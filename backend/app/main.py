@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401 - ensures models are registered on Base before create_all
 from app.database import Base, engine
@@ -43,3 +45,7 @@ app.include_router(report_routes.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
