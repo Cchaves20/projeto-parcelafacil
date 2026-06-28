@@ -13,6 +13,7 @@ class Income(Base):
     description = Column(String(150), nullable=True)
     amount = Column(Numeric(12, 2), nullable=False)
     currency = Column(Enum(Currency), nullable=False, default=Currency.BRL)
+    payment_day = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="incomes")

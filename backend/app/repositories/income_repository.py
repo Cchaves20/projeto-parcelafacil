@@ -6,8 +6,10 @@ from app.models.enums import Currency
 from app.models.income_model import Income
 
 
-def create_income(db: Session, user_id: int, amount: Decimal, currency: Currency, description: str | None) -> Income:
-    income = Income(user_id=user_id, amount=amount, currency=currency, description=description)
+def create_income(
+    db: Session, user_id: int, amount: Decimal, currency: Currency, description: str | None, payment_day: int | None
+) -> Income:
+    income = Income(user_id=user_id, amount=amount, currency=currency, description=description, payment_day=payment_day)
     db.add(income)
     db.commit()
     db.refresh(income)

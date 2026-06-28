@@ -99,6 +99,7 @@ function renderIncomes(incomes) {
           text: income.currency,
         }),
       ]),
+      el("td", { text: income.payment_day ? `Dia ${income.payment_day}` : "—" }),
       el("td", {}, [
         (() => {
           const btn = el("button", { class: "table-action", text: "Remover" });
@@ -127,9 +128,11 @@ incomeForm.addEventListener("submit", async (event) => {
   const description = document.getElementById("income-description").value.trim();
   const amount = document.getElementById("income-amount").value;
   const currency = document.getElementById("income-currency").value;
+  const paymentDayValue = document.getElementById("income-payment-day").value;
+  const payment_day = paymentDayValue ? Number(paymentDayValue) : null;
 
   try {
-    await api.createIncome({ description: description || null, amount, currency });
+    await api.createIncome({ description: description || null, amount, currency, payment_day });
     incomeForm.reset();
     await refreshIncomes();
     await loadSummary();

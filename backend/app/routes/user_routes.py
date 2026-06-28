@@ -20,7 +20,14 @@ def read_current_user(current_user: User = Depends(get_current_user)):
 def create_income(
     payload: IncomeCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    return add_income(db, current_user.id, amount=payload.amount, currency=payload.currency, description=payload.description)
+    return add_income(
+        db,
+        current_user.id,
+        amount=payload.amount,
+        currency=payload.currency,
+        description=payload.description,
+        payment_day=payload.payment_day,
+    )
 
 
 @router.get("/me/incomes", response_model=list[IncomeRead])

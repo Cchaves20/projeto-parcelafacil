@@ -9,8 +9,19 @@ from app.repositories.income_repository import create_income, delete_income, get
 from app.services.currency_service import to_brl
 
 
-def add_income(db: Session, user_id: int, amount: Decimal, currency: Currency, description: str | None) -> Income:
-    return create_income(db, user_id=user_id, amount=amount, currency=currency, description=description)
+def add_income(
+    db: Session,
+    user_id: int,
+    amount: Decimal,
+    currency: Currency,
+    description: str | None,
+    payment_day: int | None = None,
+) -> Income:
+    if payment_day is not None and not 1 <= payment_day <= 31:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dia de recebimento inválido")
+    return create_income(
+        db, user_id=user_id, amount=amount, currency=currency, description=description, payment_day=payment_day
+    )
 
 
 def list_incomes(db: Session, user_id: int) -> list[Income]:
