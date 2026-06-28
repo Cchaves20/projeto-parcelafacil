@@ -5,6 +5,8 @@ const purchaseError = document.getElementById("purchase-error");
 const purchaseList = document.getElementById("purchase-list");
 const purchaseEmpty = document.getElementById("purchase-empty");
 const categorySelect = document.getElementById("purchase-category");
+const firstDuePicker = createDatePicker(null);
+document.getElementById("purchase-first-due-container").appendChild(firstDuePicker.container);
 
 async function loadCategories() {
   const categories = await api.listCategories();
@@ -68,18 +70,25 @@ purchaseForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   hideError(purchaseError);
 
+  const firstDueDate = firstDuePicker.getValue();
+  if (!firstDueDate) {
+    showError(purchaseError, "Informe a data da 1ª parcela");
+    return;
+  }
+
   const payload = {
     description: document.getElementById("purchase-description").value.trim(),
     total_amount: document.getElementById("purchase-total").value,
     currency: document.getElementById("purchase-currency").value,
     category_id: categorySelect.value ? Number(categorySelect.value) : null,
     installments_count: Number(document.getElementById("purchase-installments").value),
-    first_due_date: document.getElementById("purchase-first-due").value,
+    first_due_date: firstDueDate,
   };
 
   try {
     await api.createInstallmentPurchase(payload);
     purchaseForm.reset();
+    firstDuePicker.setValue(null);
     await refreshPurchases();
   } catch (error) {
     showError(purchaseError, error.message);
