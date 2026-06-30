@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401 - ensures models are registered on Base before create_all
@@ -45,6 +46,11 @@ app.include_router(report_routes.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/pages/dashboard.html")
 
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
