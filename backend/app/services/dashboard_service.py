@@ -25,7 +25,7 @@ def total_sporadic_expenses_brl_for_month(db: Session, user_id: int, year: int, 
 
 
 def get_monthly_summary(db: Session, user_id: int, year: int, month: int) -> MonthlySummary:
-    income_brl = total_monthly_income_brl(db, user_id)
+    income_brl = total_monthly_income_brl(db, user_id, year, month)
     recurring_brl = total_recurring_expenses_brl_for_month(db, user_id, year, month)
     installments_brl = total_installments_brl_for_month(db, user_id, year, month)
     sporadic_brl = total_sporadic_expenses_brl_for_month(db, user_id, year, month)

@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from sqlalchemy.orm import Session
@@ -7,9 +8,24 @@ from app.models.income_model import Income
 
 
 def create_income(
-    db: Session, user_id: int, amount: Decimal, currency: Currency, description: str | None, payment_day: int | None
+    db: Session,
+    user_id: int,
+    amount: Decimal,
+    currency: Currency,
+    description: str | None,
+    payment_day: int | None,
+    start_date: date | None,
+    end_date: date | None,
 ) -> Income:
-    income = Income(user_id=user_id, amount=amount, currency=currency, description=description, payment_day=payment_day)
+    income = Income(
+        user_id=user_id,
+        amount=amount,
+        currency=currency,
+        description=description,
+        payment_day=payment_day,
+        start_date=start_date,
+        end_date=end_date,
+    )
     db.add(income)
     db.commit()
     db.refresh(income)
@@ -25,12 +41,21 @@ def get_income(db: Session, user_id: int, income_id: int) -> Income | None:
 
 
 def update_income(
-    db: Session, income: Income, amount: Decimal, currency: Currency, description: str | None, payment_day: int | None
+    db: Session,
+    income: Income,
+    amount: Decimal,
+    currency: Currency,
+    description: str | None,
+    payment_day: int | None,
+    start_date: date | None,
+    end_date: date | None,
 ) -> Income:
     income.amount = amount
     income.currency = currency
     income.description = description
     income.payment_day = payment_day
+    income.start_date = start_date
+    income.end_date = end_date
     db.commit()
     db.refresh(income)
     return income

@@ -27,6 +27,8 @@ def create_income(
         currency=payload.currency,
         description=payload.description,
         payment_day=payload.payment_day,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
     )
 
 
@@ -50,6 +52,8 @@ def update_income_route(
         currency=payload.currency,
         description=payload.description,
         payment_day=payload.payment_day,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
     )
 
 

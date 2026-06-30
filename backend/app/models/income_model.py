@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, func
+from sqlalchemy import Column, Date, DateTime, Enum, ForeignKey, Integer, Numeric, String, func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -14,6 +14,8 @@ class Income(Base):
     amount = Column(Numeric(12, 2), nullable=False)
     currency = Column(Enum(Currency), nullable=False, default=Currency.BRL)
     payment_day = Column(Integer, nullable=True)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="incomes")

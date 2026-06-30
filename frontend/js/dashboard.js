@@ -11,6 +11,11 @@ const incomeEmpty = document.getElementById("income-empty");
 const incomeSubmitBtn = document.getElementById("income-submit-btn");
 const incomeCancelEditBtn = document.getElementById("income-cancel-edit-btn");
 
+const incomeStartPicker = createDatePicker(null);
+const incomeEndPicker = createDatePicker(null);
+document.getElementById("income-start-date-container").appendChild(incomeStartPicker.container);
+document.getElementById("income-end-date-container").appendChild(incomeEndPicker.container);
+
 let editingIncomeId = null;
 
 const today = new Date();
@@ -116,6 +121,11 @@ function renderIncomes(incomes) {
         }),
       ]),
       el("td", { text: income.payment_day ? `Dia ${income.payment_day}` : "—" }),
+      el("td", {
+        text: income.start_date || income.end_date
+          ? `${income.start_date ? formatDate(income.start_date) : "início"} – ${income.end_date ? formatDate(income.end_date) : "sem fim"}`
+          : "Sempre ativa",
+      }),
       el("td", {}, [editBtn, removeBtn]),
     ]);
     incomeTableBody.appendChild(row);
@@ -125,6 +135,8 @@ function renderIncomes(incomes) {
 function resetIncomeForm() {
   editingIncomeId = null;
   incomeForm.reset();
+  incomeStartPicker.setValue(null);
+  incomeEndPicker.setValue(null);
   incomeSubmitBtn.textContent = "Adicionar";
   incomeCancelEditBtn.classList.add("hidden");
 }
@@ -135,6 +147,8 @@ function startEditIncome(income) {
   document.getElementById("income-amount").value = income.amount;
   document.getElementById("income-currency").value = income.currency;
   document.getElementById("income-payment-day").value = income.payment_day || "";
+  incomeStartPicker.setValue(income.start_date || null);
+  incomeEndPicker.setValue(income.end_date || null);
   incomeSubmitBtn.textContent = "Salvar alterações";
   incomeCancelEditBtn.classList.remove("hidden");
   incomeForm.scrollIntoView({ behavior: "smooth" });
@@ -158,7 +172,14 @@ incomeForm.addEventListener("submit", async (event) => {
   const payment_day = paymentDayValue ? Number(paymentDayValue) : null;
 
   try {
-    const payload = { description: description || null, amount, currency, payment_day };
+    const payload = {
+      description: description || null,
+      amount,
+      currency,
+      payment_day,
+      start_date: incomeStartPicker.getValue(),
+      end_date: incomeEndPicker.getValue(),
+    };
     if (editingIncomeId) {
       await api.updateIncome(editingIncomeId, payload);
     } else {

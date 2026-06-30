@@ -52,6 +52,14 @@
             <label for="income-payment-day">Dia do recebimento</label>
             <input type="number" id="income-payment-day" min="1" max="31" placeholder="Ex: 5" />
           </div>
+          <div class="form-field">
+            <label>Data de início (opcional)</label>
+            <div id="income-start-date-container"></div>
+          </div>
+          <div class="form-field">
+            <label>Data de fim (opcional)</label>
+            <div id="income-end-date-container"></div>
+          </div>
           <button type="submit" class="btn btn-primary" id="income-submit-btn">Adicionar</button>
           <button type="button" class="btn hidden" id="income-cancel-edit-btn">Cancelar edição</button>
         </form>
@@ -64,6 +72,7 @@
               <th>Valor</th>
               <th>Moeda</th>
               <th>Dia</th>
+              <th>Período ativo</th>
               <th></th>
             </tr>
           </thead>
