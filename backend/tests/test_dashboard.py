@@ -61,4 +61,5 @@ def test_dashboard_summary_counts_weekly_expense_occurrences_in_active_period(cl
     response = client.get("/dashboard/summary", params={"year": 2026, "month": 3})
     assert response.status_code == 200
     body = response.json()
-    assert body["recurring_expenses_brl"] == "720.00"
+    # 18 weekday occurrences × (R$40 / 4 weekdays) = R$180
+    assert body["recurring_expenses_brl"] == "180.00"

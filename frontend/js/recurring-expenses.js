@@ -41,6 +41,7 @@ frequencySelect.addEventListener("change", () => {
   const isWeekly = frequencySelect.value === "WEEKLY";
   monthlyFields.classList.toggle("hidden", isWeekly);
   weeklyFields.classList.toggle("hidden", !isWeekly);
+  document.getElementById("recurring-amount-label").textContent = isWeekly ? "Valor por semana" : "Valor";
 });
 
 async function loadCategories() {

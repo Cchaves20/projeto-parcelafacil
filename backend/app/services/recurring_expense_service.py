@@ -126,13 +126,21 @@ def expense_occurrences_in_range(expense: RecurringExpense, range_start: date, r
     return sorted(occurrences)
 
 
+def effective_amount_per_occurrence(expense: RecurringExpense) -> Decimal:
+    """For weekly expenses the stored amount is the total weekly budget;
+    divide by number of selected weekdays to get the per-occurrence cost."""
+    if expense.frequency == Frequency.WEEKLY and expense.weekdays:
+        return expense.amount / Decimal(len(expense.weekdays))
+    return expense.amount
+
+
 def total_recurring_expenses_brl_for_month(db: Session, user_id: int, year: int, month: int) -> Decimal:
     period_start, period_end = month_range(year, month)
     expenses = list_active_recurring_expenses_in_period(db, user_id, period_start, period_end)
     total = Decimal("0")
     for expense in expenses:
         occurrences = expense_occurrences_in_range(expense, period_start, period_end)
-        total += to_brl(expense.amount, expense.currency) * len(occurrences)
+        total += to_brl(effective_amount_per_occurrence(expense), expense.currency) * len(occurrences)
     return total
 
 
@@ -140,6 +148,7 @@ def expenses_due_in_period(db: Session, user_id: int, period_start: date, period
     expenses = list_active_recurring_expenses_in_period(db, user_id, period_start, period_end)
     items = []
     for expense in expenses:
+        amount_per_occurrence = effective_amount_per_occurrence(expense)
         for due_date in expense_occurrences_in_range(expense, period_start, period_end):
-            items.append({"name": expense.name, "amount": expense.amount, "currency": expense.currency, "due_date": due_date})
+            items.append({"name": expense.name, "amount": amount_per_occurrence, "currency": expense.currency, "due_date": due_date})
     return items
