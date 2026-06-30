@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatórios - ParcelaFácil</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/tables.css" />
+  <link rel="stylesheet" href="../css/reports.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Relatório anual</h1>
+      </div>
+
+      <div class="year-selector">
+        <label for="report-year">Ano</label>
+        <select id="report-year"></select>
+      </div>
+
+      <div class="card">
+        <canvas id="report-chart" height="280"></canvas>
+      </div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th>Renda (BRL)</th>
+              <th>Recorrentes (BRL)</th>
+              <th>Parcelas (BRL)</th>
+              <th>Esporádicos (BRL)</th>
+              <th>Total comprometido (BRL)</th>
+              <th>% comprometido</th>
+            </tr>
+          </thead>
+          <tbody id="report-table-body"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/charts.js"></script>
+  <script src="../js/reports.js"></script>
+</body>
+</html>

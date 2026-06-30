@@ -58,3 +58,17 @@ def remove_installment_purchase(db: Session, user_id: int, purchase_id: int) -> 
     if not purchase:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Compra parcelada não encontrada")
     delete_installment_purchase(db, purchase)
+
+
+def toggle_installment_status(db: Session, user_id: int, purchase_id: int, installment_id: int) -> Installment:
+    from app.models.enums import InstallmentStatus
+    purchase = get_installment_purchase(db, user_id, purchase_id)
+    if not purchase:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Compra parcelada não encontrada")
+    installment = next((i for i in purchase.installments if i.id == installment_id), None)
+    if not installment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Parcela não encontrada")
+    installment.status = InstallmentStatus.PAID if installment.status == InstallmentStatus.PENDING else InstallmentStatus.PENDING
+    db.commit()
+    db.refresh(installment)
+    return installment

@@ -18,3 +18,5 @@ class User(Base):
     recurring_expenses = relationship("RecurringExpense", back_populates="user", cascade="all, delete-orphan")
     installment_purchases = relationship("InstallmentPurchase", back_populates="user", cascade="all, delete-orphan")
     monthly_budgets = relationship("MonthlyBudget", back_populates="user", cascade="all, delete-orphan")
+    sporadic_expenses = relationship("SporadicExpense", back_populates="user", cascade="all, delete-orphan")
+    savings_boxes = relationship("SavingsBox", back_populates="user", cascade="all, delete-orphan")

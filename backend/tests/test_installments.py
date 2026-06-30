@@ -1,7 +1,6 @@
-def test_create_installment_purchase_generates_installments(client, auth_headers):
+def test_create_installment_purchase_generates_installments(client):
     response = client.post(
         "/installment-purchases",
-        headers=auth_headers,
         json={
             "description": "Notebook",
             "total_amount": "1000.00",
@@ -18,10 +17,9 @@ def test_create_installment_purchase_generates_installments(client, auth_headers
     assert sum(float(item["amount"]) for item in body["installments"]) == 1000.00
 
 
-def test_installment_amounts_absorb_rounding_remainder(client, auth_headers):
+def test_installment_amounts_absorb_rounding_remainder(client):
     response = client.post(
         "/installment-purchases",
-        headers=auth_headers,
         json={
             "description": "Celular",
             "total_amount": "100.00",

@@ -3,7 +3,12 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.enums import Currency
+from app.models.enums import Currency, Frequency
+
+
+class RecurringExpensePeriodSchema(BaseModel):
+    start_date: date
+    end_date: date | None = None
 
 
 class RecurringExpenseCreate(BaseModel):
@@ -11,9 +16,11 @@ class RecurringExpenseCreate(BaseModel):
     amount: Decimal
     currency: Currency = Currency.BRL
     category_id: int | None = None
-    billing_day: int
-    start_date: date
-    end_date: date | None = None
+    frequency: Frequency = Frequency.MONTHLY
+    billing_day: int | None = None
+    weekdays: list[int] | None = None
+    estimated_monthly_occurrences: int | None = None
+    periods: list[RecurringExpensePeriodSchema]
 
 
 class RecurringExpenseRead(BaseModel):
@@ -22,9 +29,11 @@ class RecurringExpenseRead(BaseModel):
     amount: Decimal
     currency: Currency
     category_id: int | None
-    billing_day: int
-    start_date: date
-    end_date: date | None
+    frequency: Frequency
+    billing_day: int | None
+    weekdays: list[int] | None
+    estimated_monthly_occurrences: int | None
+    periods: list[RecurringExpensePeriodSchema]
     active: bool
 
     model_config = ConfigDict(from_attributes=True)

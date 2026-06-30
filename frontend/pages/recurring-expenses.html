@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gastos recorrentes - ParcelaFácil</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/tables.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Gastos recorrentes</h1>
+      </div>
+
+      <div class="card">
+        <form id="recurring-form" class="inline-form">
+          <div class="form-field form-field-grow">
+            <label for="recurring-name">Nome</label>
+            <input type="text" id="recurring-name" placeholder="Ex: Netflix" required />
+          </div>
+          <div class="form-field">
+            <label for="recurring-amount" id="recurring-amount-label">Valor</label>
+            <input type="number" id="recurring-amount" step="0.01" min="0" required />
+          </div>
+          <div class="form-field">
+            <label for="recurring-currency">Moeda</label>
+            <select id="recurring-currency">
+              <option value="BRL">BRL</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="recurring-category">Categoria</label>
+            <select id="recurring-category">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="recurring-frequency">Frequência</label>
+            <select id="recurring-frequency">
+              <option value="MONTHLY">Mensal</option>
+              <option value="WEEKLY">Semanal</option>
+              <option value="VARIABLE">Variável</option>
+            </select>
+          </div>
+
+          <div class="form-field" id="monthly-fields">
+            <label for="recurring-billing-day">Dia de cobrança</label>
+            <input type="number" id="recurring-billing-day" min="1" max="31" />
+          </div>
+
+          <div class="form-field hidden" id="weekly-fields">
+            <label>Dias da semana</label>
+            <div class="weekday-checkboxes">
+              <label><input type="checkbox" value="0" /> Seg</label>
+              <label><input type="checkbox" value="1" /> Ter</label>
+              <label><input type="checkbox" value="2" /> Qua</label>
+              <label><input type="checkbox" value="3" /> Qui</label>
+              <label><input type="checkbox" value="4" /> Sex</label>
+              <label><input type="checkbox" value="5" /> Sáb</label>
+              <label><input type="checkbox" value="6" /> Dom</label>
+            </div>
+          </div>
+
+          <div class="form-field hidden" id="variable-fields">
+            <label for="recurring-monthly-occurrences">Vezes por mês (estimativa)</label>
+            <input type="number" id="recurring-monthly-occurrences" min="1" placeholder="Ex: 3" />
+          </div>
+
+          <div class="form-field form-field-grow">
+            <label>Períodos ativos</label>
+            <div id="periods-container"></div>
+            <button type="button" id="add-period-btn" class="btn">+ Adicionar período</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="recurring-submit-btn">Adicionar</button>
+          <button type="button" class="btn hidden" id="recurring-cancel-edit-btn">Cancelar edição</button>
+        </form>
+        <p id="recurring-error" class="form-error hidden"></p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Valor</th>
+              <th>Moeda</th>
+              <th>Frequência</th>
+              <th>Períodos ativos</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="recurring-table-body"></tbody>
+        </table>
+        <p id="recurring-empty" class="empty-state hidden">Nenhum gasto recorrente cadastrado ainda.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/recurring-expenses.js"></script>
+</body>
+</html>
