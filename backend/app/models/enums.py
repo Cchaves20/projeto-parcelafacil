@@ -14,3 +14,4 @@ class InstallmentStatus(str, enum.Enum):
 class Frequency(str, enum.Enum):
     MONTHLY = "MONTHLY"
     WEEKLY = "WEEKLY"
+    VARIABLE = "VARIABLE"

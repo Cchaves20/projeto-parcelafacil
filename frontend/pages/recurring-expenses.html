@@ -45,6 +45,7 @@
             <select id="recurring-frequency">
               <option value="MONTHLY">Mensal</option>
               <option value="WEEKLY">Semanal</option>
+              <option value="VARIABLE">Variável</option>
             </select>
           </div>
 
@@ -64,6 +65,11 @@
               <label><input type="checkbox" value="5" /> Sáb</label>
               <label><input type="checkbox" value="6" /> Dom</label>
             </div>
+          </div>
+
+          <div class="form-field hidden" id="variable-fields">
+            <label for="recurring-monthly-occurrences">Vezes por mês (estimativa)</label>
+            <input type="number" id="recurring-monthly-occurrences" min="1" placeholder="Ex: 3" />
           </div>
 
           <div class="form-field form-field-grow">

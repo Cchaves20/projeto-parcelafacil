@@ -19,8 +19,12 @@ from app.utils.date_utils import month_range, monthly_occurrences, weekday_occur
 
 
 def _validate_recurring_expense(
-    frequency: Frequency, billing_day: int | None, weekdays: list[int] | None, periods: list[dict]
-) -> tuple[int | None, list[int] | None]:
+    frequency: Frequency,
+    billing_day: int | None,
+    weekdays: list[int] | None,
+    estimated_monthly_occurrences: int | None,
+    periods: list[dict],
+) -> tuple[int | None, list[int] | None, int | None]:
     if not periods:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Informe ao menos um período ativo")
     for period in periods:
@@ -30,13 +34,15 @@ def _validate_recurring_expense(
     if frequency == Frequency.MONTHLY:
         if billing_day is None or not 1 <= billing_day <= 31:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dia de cobrança inválido")
-        weekdays = None
-    else:
+        return billing_day, None, None
+    elif frequency == Frequency.WEEKLY:
         if not weekdays or any(not 0 <= day <= 6 for day in weekdays):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dias da semana inválidos")
-        billing_day = None
-
-    return billing_day, weekdays
+        return None, weekdays, None
+    else:  # VARIABLE
+        if not estimated_monthly_occurrences or estimated_monthly_occurrences < 1:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Informe o número estimado de ocorrências por mês")
+        return None, None, estimated_monthly_occurrences
 
 
 def add_recurring_expense(
@@ -48,10 +54,13 @@ def add_recurring_expense(
     frequency: Frequency,
     billing_day: int | None,
     weekdays: list[int] | None,
+    estimated_monthly_occurrences: int | None,
     periods: list[dict],
     category_id: int | None,
 ) -> RecurringExpense:
-    billing_day, weekdays = _validate_recurring_expense(frequency, billing_day, weekdays, periods)
+    billing_day, weekdays, estimated_monthly_occurrences = _validate_recurring_expense(
+        frequency, billing_day, weekdays, estimated_monthly_occurrences, periods
+    )
 
     return create_recurring_expense(
         db,
@@ -62,6 +71,7 @@ def add_recurring_expense(
         frequency=frequency,
         billing_day=billing_day,
         weekdays=weekdays,
+        estimated_monthly_occurrences=estimated_monthly_occurrences,
         periods=periods,
         category_id=category_id,
     )
@@ -81,6 +91,7 @@ def edit_recurring_expense(
     frequency: Frequency,
     billing_day: int | None,
     weekdays: list[int] | None,
+    estimated_monthly_occurrences: int | None,
     periods: list[dict],
     category_id: int | None,
 ) -> RecurringExpense:
@@ -88,7 +99,9 @@ def edit_recurring_expense(
     if not expense:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Gasto recorrente não encontrado")
 
-    billing_day, weekdays = _validate_recurring_expense(frequency, billing_day, weekdays, periods)
+    billing_day, weekdays, estimated_monthly_occurrences = _validate_recurring_expense(
+        frequency, billing_day, weekdays, estimated_monthly_occurrences, periods
+    )
 
     return update_recurring_expense(
         db,
@@ -100,6 +113,7 @@ def edit_recurring_expense(
         frequency=frequency,
         billing_day=billing_day,
         weekdays=weekdays,
+        estimated_monthly_occurrences=estimated_monthly_occurrences,
         category_id=category_id,
     )
 
@@ -112,6 +126,8 @@ def remove_recurring_expense(db: Session, user_id: int, expense_id: int) -> None
 
 
 def expense_occurrences_in_range(expense: RecurringExpense, range_start: date, range_end: date) -> list[date]:
+    if expense.frequency == Frequency.VARIABLE:
+        return []
     occurrences: set[date] = set()
     for period in expense.periods:
         effective_start = max(period.start_date, range_start)
@@ -134,13 +150,25 @@ def effective_amount_per_occurrence(expense: RecurringExpense) -> Decimal:
     return expense.amount
 
 
+def _is_active_in_month(expense: RecurringExpense, period_start: date, period_end: date) -> bool:
+    for period in expense.periods:
+        if period.start_date <= period_end:
+            if period.end_date is None or period.end_date >= period_start:
+                return True
+    return False
+
+
 def total_recurring_expenses_brl_for_month(db: Session, user_id: int, year: int, month: int) -> Decimal:
     period_start, period_end = month_range(year, month)
     expenses = list_active_recurring_expenses_in_period(db, user_id, period_start, period_end)
     total = Decimal("0")
     for expense in expenses:
-        occurrences = expense_occurrences_in_range(expense, period_start, period_end)
-        total += to_brl(effective_amount_per_occurrence(expense), expense.currency) * len(occurrences)
+        if expense.frequency == Frequency.VARIABLE:
+            monthly_cost = expense.amount * Decimal(expense.estimated_monthly_occurrences or 0)
+            total += to_brl(monthly_cost, expense.currency)
+        else:
+            occurrences = expense_occurrences_in_range(expense, period_start, period_end)
+            total += to_brl(effective_amount_per_occurrence(expense), expense.currency) * len(occurrences)
     return total
 
 
@@ -148,6 +176,8 @@ def expenses_due_in_period(db: Session, user_id: int, period_start: date, period
     expenses = list_active_recurring_expenses_in_period(db, user_id, period_start, period_end)
     items = []
     for expense in expenses:
+        if expense.frequency == Frequency.VARIABLE:
+            continue  # no specific due dates for variable expenses
         amount_per_occurrence = effective_amount_per_occurrence(expense)
         for due_date in expense_occurrences_in_range(expense, period_start, period_end):
             items.append({"name": expense.name, "amount": amount_per_occurrence, "currency": expense.currency, "due_date": due_date})

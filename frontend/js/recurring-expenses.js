@@ -8,6 +8,7 @@ const categorySelect = document.getElementById("recurring-category");
 const frequencySelect = document.getElementById("recurring-frequency");
 const monthlyFields = document.getElementById("monthly-fields");
 const weeklyFields = document.getElementById("weekly-fields");
+const variableFields = document.getElementById("variable-fields");
 const periodsContainer = document.getElementById("periods-container");
 const addPeriodBtn = document.getElementById("add-period-btn");
 const submitBtn = document.getElementById("recurring-submit-btn");
@@ -37,12 +38,22 @@ function addPeriodRow(period) {
 
 addPeriodBtn.addEventListener("click", () => addPeriodRow());
 
-frequencySelect.addEventListener("change", () => {
-  const isWeekly = frequencySelect.value === "WEEKLY";
-  monthlyFields.classList.toggle("hidden", isWeekly);
-  weeklyFields.classList.toggle("hidden", !isWeekly);
-  document.getElementById("recurring-amount-label").textContent = isWeekly ? "Valor por semana" : "Valor";
-});
+function updateFrequencyUI() {
+  const freq = frequencySelect.value;
+  monthlyFields.classList.toggle("hidden", freq !== "MONTHLY");
+  weeklyFields.classList.toggle("hidden", freq !== "WEEKLY");
+  variableFields.classList.toggle("hidden", freq !== "VARIABLE");
+
+  if (freq === "WEEKLY") {
+    document.getElementById("recurring-amount-label").textContent = "Valor por semana";
+  } else if (freq === "VARIABLE") {
+    document.getElementById("recurring-amount-label").textContent = "Valor por ocorrência";
+  } else {
+    document.getElementById("recurring-amount-label").textContent = "Valor";
+  }
+}
+
+frequencySelect.addEventListener("change", updateFrequencyUI);
 
 async function loadCategories() {
   const categories = await api.listCategories();
@@ -64,6 +75,8 @@ function resetForm() {
   addPeriodRow();
   monthlyFields.classList.remove("hidden");
   weeklyFields.classList.add("hidden");
+  variableFields.classList.add("hidden");
+  document.getElementById("recurring-amount-label").textContent = "Valor";
   submitBtn.textContent = "Adicionar";
   cancelEditBtn.classList.add("hidden");
 }
@@ -76,16 +89,21 @@ function startEdit(expense) {
   categorySelect.value = expense.category_id || "";
   frequencySelect.value = expense.frequency;
 
-  const isWeekly = expense.frequency === "WEEKLY";
-  monthlyFields.classList.toggle("hidden", isWeekly);
-  weeklyFields.classList.toggle("hidden", !isWeekly);
+  monthlyFields.classList.toggle("hidden", expense.frequency !== "MONTHLY");
+  weeklyFields.classList.toggle("hidden", expense.frequency !== "WEEKLY");
+  variableFields.classList.toggle("hidden", expense.frequency !== "VARIABLE");
 
-  if (isWeekly) {
+  if (expense.frequency === "WEEKLY") {
     weeklyFields.querySelectorAll("input[type=checkbox]").forEach((checkbox) => {
       checkbox.checked = (expense.weekdays || []).includes(Number(checkbox.value));
     });
+    document.getElementById("recurring-amount-label").textContent = "Valor por semana";
+  } else if (expense.frequency === "VARIABLE") {
+    document.getElementById("recurring-monthly-occurrences").value = expense.estimated_monthly_occurrences || "";
+    document.getElementById("recurring-amount-label").textContent = "Valor por ocorrência";
   } else {
     document.getElementById("recurring-billing-day").value = expense.billing_day;
+    document.getElementById("recurring-amount-label").textContent = "Valor";
   }
 
   periodsContainer.innerHTML = "";
@@ -97,6 +115,16 @@ function startEdit(expense) {
 }
 
 cancelEditBtn.addEventListener("click", resetForm);
+
+function frequencyLabel(expense) {
+  if (expense.frequency === "WEEKLY") {
+    return "Semanal (" + (expense.weekdays || []).map((day) => WEEKDAY_LABELS[day]).join(", ") + ")";
+  }
+  if (expense.frequency === "VARIABLE") {
+    return "Variável (~" + expense.estimated_monthly_occurrences + "x/mês)";
+  }
+  return "Mensal (dia " + expense.billing_day + ")";
+}
 
 function renderRecurringExpenses(expenses) {
   recurringTableBody.innerHTML = "";
@@ -112,22 +140,17 @@ function renderRecurringExpenses(expenses) {
       await refreshRecurringExpenses();
     });
 
-    const frequencyLabel =
-      expense.frequency === "WEEKLY"
-        ? `Semanal (${(expense.weekdays || []).map((day) => WEEKDAY_LABELS[day]).join(", ")})`
-        : `Mensal (dia ${expense.billing_day})`;
-
     recurringTableBody.appendChild(
       el("tr", {}, [
         el("td", { text: expense.name }),
         el("td", { text: formatCurrency(expense.amount, expense.currency) }),
         el("td", {}, [
           el("span", {
-            class: `badge ${expense.currency === "USD" ? "badge-usd" : "badge-brl"}`,
+            class: "badge " + (expense.currency === "USD" ? "badge-usd" : "badge-brl"),
             text: expense.currency,
           }),
         ]),
-        el("td", { text: frequencyLabel }),
+        el("td", { text: frequencyLabel(expense) }),
         el("td", { text: formatPeriods(expense.periods) }),
         el("td", {}, [editBtn, removeBtn]),
       ])
@@ -163,6 +186,8 @@ recurringForm.addEventListener("submit", async (event) => {
     payload.weekdays = Array.from(weeklyFields.querySelectorAll("input[type=checkbox]:checked")).map((checkbox) =>
       Number(checkbox.value)
     );
+  } else if (frequency === "VARIABLE") {
+    payload.estimated_monthly_occurrences = Number(document.getElementById("recurring-monthly-occurrences").value);
   } else {
     payload.billing_day = Number(document.getElementById("recurring-billing-day").value);
   }

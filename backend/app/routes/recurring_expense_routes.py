@@ -28,6 +28,7 @@ def create_recurring_expense(
         frequency=payload.frequency,
         billing_day=payload.billing_day,
         weekdays=payload.weekdays,
+        estimated_monthly_occurrences=payload.estimated_monthly_occurrences,
         periods=[period.model_dump() for period in payload.periods],
         category_id=payload.category_id,
     )
@@ -55,6 +56,7 @@ def update_recurring_expense_route(
         frequency=payload.frequency,
         billing_day=payload.billing_day,
         weekdays=payload.weekdays,
+        estimated_monthly_occurrences=payload.estimated_monthly_occurrences,
         periods=[period.model_dump() for period in payload.periods],
         category_id=payload.category_id,
     )

@@ -19,6 +19,7 @@ class RecurringExpenseCreate(BaseModel):
     frequency: Frequency = Frequency.MONTHLY
     billing_day: int | None = None
     weekdays: list[int] | None = None
+    estimated_monthly_occurrences: int | None = None
     periods: list[RecurringExpensePeriodSchema]
 
 
@@ -31,6 +32,7 @@ class RecurringExpenseRead(BaseModel):
     frequency: Frequency
     billing_day: int | None
     weekdays: list[int] | None
+    estimated_monthly_occurrences: int | None
     periods: list[RecurringExpensePeriodSchema]
     active: bool
 

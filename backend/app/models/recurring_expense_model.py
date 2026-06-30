@@ -17,6 +17,7 @@ class RecurringExpense(Base):
     frequency = Column(Enum(Frequency), nullable=False, default=Frequency.MONTHLY)
     billing_day = Column(Integer, nullable=True)
     weekdays = Column(JSON, nullable=True)
+    estimated_monthly_occurrences = Column(Integer, nullable=True)
     active = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
