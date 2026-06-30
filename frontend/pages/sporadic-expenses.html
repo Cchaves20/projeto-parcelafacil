@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gastos esporádicos - ParcelaFácil</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/tables.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Gastos esporádicos</h1>
+      </div>
+
+      <div class="card">
+        <form id="sporadic-form" class="inline-form">
+          <div class="form-field form-field-grow">
+            <label for="sporadic-description">Descrição</label>
+            <input type="text" id="sporadic-description" placeholder="Ex: Jantar fora" required />
+          </div>
+          <div class="form-field">
+            <label for="sporadic-amount">Valor</label>
+            <input type="number" id="sporadic-amount" step="0.01" min="0" required />
+          </div>
+          <div class="form-field">
+            <label for="sporadic-currency">Moeda</label>
+            <select id="sporadic-currency">
+              <option value="BRL">BRL</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="sporadic-category">Categoria</label>
+            <select id="sporadic-category">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Data</label>
+            <div id="sporadic-date-container"></div>
+          </div>
+          <button type="submit" id="sporadic-submit-btn" class="btn btn-primary">Adicionar</button>
+          <button type="button" id="sporadic-cancel-edit-btn" class="btn hidden">Cancelar</button>
+        </form>
+        <p id="sporadic-error" class="form-error hidden"></p>
+      </div>
+
+      <table class="data-table" id="sporadic-table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Valor</th>
+            <th>Moeda</th>
+            <th>Categoria</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="sporadic-table-body"></tbody>
+      </table>
+      <p id="sporadic-empty" class="empty-state hidden">Nenhum gasto esporádico cadastrado ainda.</p>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/sporadic-expenses.js"></script>
+</body>
+</html>

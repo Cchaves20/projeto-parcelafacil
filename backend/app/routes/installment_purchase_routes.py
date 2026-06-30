@@ -5,10 +5,12 @@ from app.database import get_db
 from app.models.user_model import User
 from app.schemas.installment_purchase_schema import InstallmentPurchaseCreate, InstallmentPurchaseRead
 from app.services.auth_service import get_current_user
+from app.schemas.installment_schema import InstallmentRead
 from app.services.installment_purchase_service import (
     add_installment_purchase,
     list_installment_purchases,
     remove_installment_purchase,
+    toggle_installment_status,
 )
 
 router = APIRouter(prefix="/installment-purchases", tags=["installment-purchases"])
@@ -40,3 +42,13 @@ def delete_installment_purchase_route(
     purchase_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     remove_installment_purchase(db, current_user.id, purchase_id)
+
+
+@router.patch("/{purchase_id}/installments/{installment_id}/toggle", response_model=InstallmentRead)
+def toggle_installment_route(
+    purchase_id: int,
+    installment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return toggle_installment_status(db, current_user.id, purchase_id, installment_id)

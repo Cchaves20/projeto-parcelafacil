@@ -15,6 +15,8 @@ from app.routes import (
     installment_purchase_routes,
     recurring_expense_routes,
     report_routes,
+    savings_box_routes,
+    sporadic_expense_routes,
     user_routes,
 )
 
@@ -41,6 +43,8 @@ app.include_router(installment_purchase_routes.router)
 app.include_router(dashboard_routes.router)
 app.include_router(calendar_routes.router)
 app.include_router(report_routes.router)
+app.include_router(sporadic_expense_routes.router)
+app.include_router(savings_box_routes.router)
 
 
 @app.get("/health")

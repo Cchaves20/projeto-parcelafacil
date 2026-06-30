@@ -7,6 +7,8 @@ from app.models.enums import Frequency
 from app.models.monthly_budget_model import MonthlyBudget
 from app.models.recurring_expense_model import RecurringExpense
 from app.models.recurring_expense_period_model import RecurringExpensePeriod
+from app.models.savings_box_model import SavingsBox, SavingsTransaction
+from app.models.sporadic_expense_model import SporadicExpense
 from app.models.user_model import User
 
 __all__ = [
@@ -20,5 +22,8 @@ __all__ = [
     "MonthlyBudget",
     "RecurringExpense",
     "RecurringExpensePeriod",
+    "SavingsBox",
+    "SavingsTransaction",
+    "SporadicExpense",
     "User",
 ]

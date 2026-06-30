@@ -31,8 +31,16 @@ function renderPurchases(purchases) {
       removeBtn,
     ]);
 
-    const rows = purchase.installments.map((installment) =>
-      el("tr", {}, [
+    const rows = purchase.installments.map((installment) => {
+      const toggleBtn = el("button", {
+        class: `table-action ${installment.status === "PAID" ? "btn-undo" : ""}`,
+        text: installment.status === "PAID" ? "Desfazer" : "Marcar pago",
+      });
+      toggleBtn.addEventListener("click", async () => {
+        await api.toggleInstallment(purchase.id, installment.id);
+        await refreshPurchases();
+      });
+      return el("tr", {}, [
         el("td", { text: `${installment.number}/${purchase.installments_count}` }),
         el("td", { text: formatCurrency(installment.amount, purchase.currency) }),
         el("td", { text: formatDate(installment.due_date) }),
@@ -42,8 +50,9 @@ function renderPurchases(purchases) {
             text: installment.status === "PAID" ? "Pago" : "Pendente",
           }),
         ]),
-      ])
-    );
+        el("td", {}, [toggleBtn]),
+      ]);
+    });
 
     const table = el("table", { class: "data-table" }, [
       el("thead", {}, [
@@ -52,6 +61,7 @@ function renderPurchases(purchases) {
           el("th", { text: "Valor" }),
           el("th", { text: "Vencimento" }),
           el("th", { text: "Status" }),
+          el("th", { text: "Ação" }),
         ]),
       ]),
       el("tbody", {}, rows),

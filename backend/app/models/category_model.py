@@ -14,3 +14,4 @@ class Category(Base):
     user = relationship("User", back_populates="categories")
     recurring_expenses = relationship("RecurringExpense", back_populates="category")
     installment_purchases = relationship("InstallmentPurchase", back_populates="category")
+    sporadic_expenses = relationship("SporadicExpense", back_populates="category")

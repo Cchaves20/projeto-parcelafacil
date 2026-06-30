@@ -44,6 +44,22 @@ const api = {
   listInstallmentPurchases: () => apiRequest("/installment-purchases"),
   createInstallmentPurchase: (payload) => apiRequest("/installment-purchases", { method: "POST", body: payload }),
   deleteInstallmentPurchase: (id) => apiRequest(`/installment-purchases/${id}`, { method: "DELETE" }),
+  toggleInstallment: (purchaseId, installmentId) =>
+    apiRequest(`/installment-purchases/${purchaseId}/installments/${installmentId}/toggle`, { method: "PATCH" }),
+
+  listSporadicExpenses: () => apiRequest("/sporadic-expenses"),
+  createSporadicExpense: (payload) => apiRequest("/sporadic-expenses", { method: "POST", body: payload }),
+  updateSporadicExpense: (id, payload) => apiRequest(`/sporadic-expenses/${id}`, { method: "PUT", body: payload }),
+  deleteSporadicExpense: (id) => apiRequest(`/sporadic-expenses/${id}`, { method: "DELETE" }),
+
+  listSavingsBoxes: () => apiRequest("/savings-boxes"),
+  createSavingsBox: (payload) => apiRequest("/savings-boxes", { method: "POST", body: payload }),
+  updateSavingsBox: (id, payload) => apiRequest(`/savings-boxes/${id}`, { method: "PUT", body: payload }),
+  deleteSavingsBox: (id) => apiRequest(`/savings-boxes/${id}`, { method: "DELETE" }),
+  addSavingsTransaction: (boxId, payload) =>
+    apiRequest(`/savings-boxes/${boxId}/transactions`, { method: "POST", body: payload }),
+  deleteSavingsTransaction: (boxId, transactionId) =>
+    apiRequest(`/savings-boxes/${boxId}/transactions/${transactionId}`, { method: "DELETE" }),
 
   getDashboardSummary: (year, month) => apiRequest(`/dashboard/summary?year=${year}&month=${month}`),
   getAnnualReport: (year) => apiRequest(`/reports/annual?year=${year}`),
