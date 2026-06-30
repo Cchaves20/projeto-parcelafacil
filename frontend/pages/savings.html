@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Caixinhas - ParcelaFácil</title>
+  <title>Reservas - ParcelaFácil</title>
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/forms.css" />
   <link rel="stylesheet" href="../css/tables.css" />
@@ -14,11 +14,11 @@
 
     <main class="main-content">
       <div class="page-header">
-        <h1>Caixinhas</h1>
+        <h1>Reservas</h1>
       </div>
 
       <div class="card">
-        <h2>Nova caixinha</h2>
+        <h2 id="box-form-title">Nova reserva</h2>
         <form id="box-form" class="inline-form">
           <div class="form-field form-field-grow">
             <label for="box-name">Nome</label>
@@ -35,14 +35,22 @@
             <label for="box-rate">Rendimento anual (%)</label>
             <input type="number" id="box-rate" step="0.01" min="0" value="0" required />
           </div>
-          <button type="submit" id="box-submit-btn" class="btn btn-primary">Criar caixinha</button>
+          <div class="form-field">
+            <label for="box-deposit-amount">Aporte mensal (opcional)</label>
+            <input type="number" id="box-deposit-amount" step="0.01" min="0" placeholder="Valor" />
+          </div>
+          <div class="form-field">
+            <label for="box-deposit-day">Dia do aporte</label>
+            <input type="number" id="box-deposit-day" min="1" max="31" placeholder="1–31" />
+          </div>
+          <button type="submit" id="box-submit-btn" class="btn btn-primary">Criar reserva</button>
           <button type="button" id="box-cancel-edit-btn" class="btn hidden">Cancelar</button>
         </form>
         <p id="box-error" class="form-error hidden"></p>
       </div>
 
       <div id="box-list"></div>
-      <p id="box-empty" class="empty-state hidden">Nenhuma caixinha cadastrada ainda.</p>
+      <p id="box-empty" class="empty-state hidden">Nenhuma reserva cadastrada ainda.</p>
     </main>
   </div>
 

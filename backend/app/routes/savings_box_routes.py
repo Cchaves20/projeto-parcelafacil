@@ -28,7 +28,15 @@ def create_savings_box_route(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return add_savings_box(db, current_user.id, payload.name, payload.currency, payload.annual_rate)
+    return add_savings_box(
+        db,
+        current_user.id,
+        payload.name,
+        payload.currency,
+        payload.annual_rate,
+        payload.monthly_deposit_amount,
+        payload.monthly_deposit_day,
+    )
 
 
 @router.get("", response_model=list[SavingsBoxRead])
@@ -43,7 +51,16 @@ def update_savings_box_route(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return edit_savings_box(db, current_user.id, box_id, payload.name, payload.currency, payload.annual_rate)
+    return edit_savings_box(
+        db,
+        current_user.id,
+        box_id,
+        payload.name,
+        payload.currency,
+        payload.annual_rate,
+        payload.monthly_deposit_amount,
+        payload.monthly_deposit_day,
+    )
 
 
 @router.delete("/{box_id}", status_code=status.HTTP_204_NO_CONTENT)

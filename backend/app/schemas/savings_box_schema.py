@@ -10,12 +10,16 @@ class SavingsBoxCreate(BaseModel):
     name: str
     currency: Currency = Currency.BRL
     annual_rate: Decimal = Decimal("0")
+    monthly_deposit_amount: Decimal | None = None
+    monthly_deposit_day: int | None = None
 
 
 class SavingsBoxUpdate(BaseModel):
     name: str
     currency: Currency
     annual_rate: Decimal
+    monthly_deposit_amount: Decimal | None = None
+    monthly_deposit_day: int | None = None
 
 
 class SavingsTransactionCreate(BaseModel):
@@ -37,6 +41,8 @@ class SavingsBoxRead(BaseModel):
     name: str
     currency: Currency
     annual_rate: Decimal
+    monthly_deposit_amount: Decimal | None
+    monthly_deposit_day: int | None
     balance: Decimal
     transactions: list[SavingsTransactionRead]
 

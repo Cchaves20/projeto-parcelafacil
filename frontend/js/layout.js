@@ -3,7 +3,7 @@ const NAV_LINKS = [
   { href: "recurring-expenses.html", label: "Gastos recorrentes" },
   { href: "sporadic-expenses.html", label: "Gastos esporádicos" },
   { href: "installment-purchases.html", label: "Compras parceladas" },
-  { href: "savings.html", label: "Caixinhas" },
+  { href: "savings.html", label: "Reservas" },
   { href: "categories.html", label: "Categorias" },
   { href: "calendar.html", label: "Calendário" },
   { href: "reports.html", label: "Relatórios" },

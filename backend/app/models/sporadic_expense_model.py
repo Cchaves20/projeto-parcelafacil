@@ -19,3 +19,7 @@ class SporadicExpense(Base):
 
     user = relationship("User", back_populates="sporadic_expenses")
     category = relationship("Category", back_populates="sporadic_expenses")
+
+    @property
+    def category_name(self) -> str | None:
+        return self.category.name if self.category else None

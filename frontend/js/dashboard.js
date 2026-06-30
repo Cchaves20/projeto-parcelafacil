@@ -40,6 +40,7 @@ function renderSummary(summary) {
     { label: "Renda do mês (BRL)", value: formatCurrency(summary.monthly_income_brl) },
     { label: "Gastos recorrentes (BRL)", value: formatCurrency(summary.recurring_expenses_brl) },
     { label: "Parcelas do mês (BRL)", value: formatCurrency(summary.installments_brl) },
+    { label: "Gastos esporádicos (BRL)", value: formatCurrency(summary.sporadic_expenses_brl) },
     { label: "Total comprometido (BRL)", value: formatCurrency(summary.total_committed_brl) },
   ];
 
@@ -68,7 +69,7 @@ function renderSummary(summary) {
   exchangeRateNote.textContent = `Cotação USD → BRL utilizada: ${formatCurrency(summary.exchange_rate_usd_brl)}`;
 
   drawBarChart(document.getElementById("dashboard-chart"), {
-    labels: ["Renda", "Recorrentes", "Parcelas"],
+    labels: ["Renda", "Recorrentes", "Parcelas", "Esporádicos"],
     datasets: [
       {
         color: "#2563eb",
@@ -76,6 +77,7 @@ function renderSummary(summary) {
           Number(summary.monthly_income_brl),
           Number(summary.recurring_expenses_brl),
           Number(summary.installments_brl),
+          Number(summary.sporadic_expenses_brl),
         ],
       },
     ],

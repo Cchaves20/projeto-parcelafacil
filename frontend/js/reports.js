@@ -20,6 +20,7 @@ function renderTable(summaries) {
         el("td", { text: formatCurrency(summary.monthly_income_brl) }),
         el("td", { text: formatCurrency(summary.recurring_expenses_brl) }),
         el("td", { text: formatCurrency(summary.installments_brl) }),
+        el("td", { text: formatCurrency(summary.sporadic_expenses_brl) }),
         el("td", { text: formatCurrency(summary.total_committed_brl) }),
         el("td", { text: `${Number(summary.committed_percentage).toFixed(2)}%` }),
       ])

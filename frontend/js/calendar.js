@@ -55,7 +55,7 @@ function renderCalendar(items) {
     const groupItems = groups.get(date).map((item) =>
       el("div", { class: "calendar-item" }, [
         el("div", { class: "item-name" }, [
-          el("span", { text: item.type === "installment" ? "📦" : "🔁" }),
+          el("span", { text: item.type === "installment" ? "📦" : item.type === "savings_deposit" ? "💰" : "🔁" }),
           el("span", { text: item.name }),
         ]),
         el("div", { class: "item-amount", text: formatCurrency(item.amount, item.currency) }),

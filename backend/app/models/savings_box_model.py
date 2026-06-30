@@ -13,6 +13,8 @@ class SavingsBox(Base):
     name = Column(String(150), nullable=False)
     currency = Column(Enum(Currency), nullable=False, default=Currency.BRL)
     annual_rate = Column(Numeric(8, 4), nullable=False, default=0)
+    monthly_deposit_amount = Column(Numeric(12, 2), nullable=True)
+    monthly_deposit_day = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="savings_boxes")

@@ -21,5 +21,6 @@ class SporadicExpenseRead(BaseModel):
     currency: Currency
     expense_date: date
     category_id: int | None
+    category_name: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

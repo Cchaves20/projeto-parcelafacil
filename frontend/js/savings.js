@@ -1,6 +1,7 @@
 renderSidebar("savings.html");
 
 const boxForm = document.getElementById("box-form");
+const boxFormTitle = document.getElementById("box-form-title");
 const boxError = document.getElementById("box-error");
 const boxList = document.getElementById("box-list");
 const boxEmpty = document.getElementById("box-empty");
@@ -13,7 +14,8 @@ function resetBoxForm() {
   editingBoxId = null;
   boxForm.reset();
   document.getElementById("box-rate").value = "0";
-  boxSubmitBtn.textContent = "Criar caixinha";
+  boxFormTitle.textContent = "Nova reserva";
+  boxSubmitBtn.textContent = "Criar reserva";
   boxCancelEditBtn.classList.add("hidden");
 }
 
@@ -21,7 +23,10 @@ function startEditBox(box) {
   editingBoxId = box.id;
   document.getElementById("box-name").value = box.name;
   document.getElementById("box-currency").value = box.currency;
-  document.getElementById("box-rate").value = box.annual_rate;
+  document.getElementById("box-rate").value = Number(box.annual_rate).toFixed(2);
+  document.getElementById("box-deposit-amount").value = box.monthly_deposit_amount != null ? Number(box.monthly_deposit_amount).toFixed(2) : "";
+  document.getElementById("box-deposit-day").value = box.monthly_deposit_day != null ? box.monthly_deposit_day : "";
+  boxFormTitle.textContent = "Editar reserva";
   boxSubmitBtn.textContent = "Salvar alterações";
   boxCancelEditBtn.classList.remove("hidden");
   boxForm.scrollIntoView({ behavior: "smooth" });
@@ -33,10 +38,15 @@ boxForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   hideError(boxError);
 
+  const depositAmountVal = document.getElementById("box-deposit-amount").value;
+  const depositDayVal = document.getElementById("box-deposit-day").value;
+
   const payload = {
     name: document.getElementById("box-name").value.trim(),
     currency: document.getElementById("box-currency").value,
     annual_rate: document.getElementById("box-rate").value,
+    monthly_deposit_amount: depositAmountVal ? depositAmountVal : null,
+    monthly_deposit_day: depositDayVal ? Number(depositDayVal) : null,
   };
 
   try {
@@ -57,21 +67,36 @@ function renderBoxes(boxes) {
   boxEmpty.classList.toggle("hidden", boxes.length > 0);
 
   boxes.forEach((box) => {
-    const editBoxBtn = el("button", { class: "btn btn-secondary", text: "Editar caixinha" });
+    const editBoxBtn = el("button", { class: "btn btn-secondary", text: "Editar" });
     editBoxBtn.addEventListener("click", () => startEditBox(box));
 
-    const deleteBoxBtn = el("button", { class: "btn btn-danger", text: "Excluir caixinha" });
+    const deleteBoxBtn = el("button", { class: "btn btn-danger", text: "Excluir" });
     deleteBoxBtn.addEventListener("click", async () => {
       await api.deleteSavingsBox(box.id);
       await refreshBoxes();
     });
 
+    const rateLabel = Number(box.annual_rate) === 0
+      ? "Sem rendimento"
+      : `${Number(box.annual_rate).toFixed(2)}% a.a.`;
+
+    const depositLabel = box.monthly_deposit_amount && box.monthly_deposit_day
+      ? `Aporte mensal: ${formatCurrency(box.monthly_deposit_amount, box.currency)} todo dia ${box.monthly_deposit_day}`
+      : null;
+
+    const infoText = [
+      `Saldo: ${formatCurrency(box.balance, box.currency)}`,
+      rateLabel,
+      `Moeda: ${box.currency}`,
+      depositLabel,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+
     const header = el("div", { class: "page-header" }, [
       el("div", {}, [
         el("h2", { text: box.name }),
-        el("p", {
-          text: `Saldo: ${formatCurrency(box.balance, box.currency)} · Rendimento: ${box.annual_rate}% a.a. · Moeda: ${box.currency}`,
-        }),
+        el("p", { text: infoText }),
       ]),
       el("div", { class: "btn-group" }, [editBoxBtn, deleteBoxBtn]),
     ]);
@@ -79,15 +104,24 @@ function renderBoxes(boxes) {
     // Transaction form
     const txAmountInput = el("input", { type: "number", step: "0.01", placeholder: "Valor (negativo para retirada)" });
     const txDescInput = el("input", { type: "text", placeholder: "Descrição (opcional)" });
-    const txSubmitBtn = el("button", { type: "button", class: "btn btn-primary", text: "Adicionar" });
+    const txError = el("p", { class: "form-error hidden" });
+    const txSubmitBtn = el("button", { type: "button", class: "btn btn-primary", text: "Registrar" });
     txSubmitBtn.addEventListener("click", async () => {
       const amount = txAmountInput.value;
       if (!amount || Number(amount) === 0) return;
-      await api.addSavingsTransaction(box.id, {
-        amount,
-        description: txDescInput.value.trim() || null,
-      });
-      await refreshBoxes();
+      txError.classList.add("hidden");
+      try {
+        await api.addSavingsTransaction(box.id, {
+          amount,
+          description: txDescInput.value.trim() || null,
+        });
+        txAmountInput.value = "";
+        txDescInput.value = "";
+        await refreshBoxes();
+      } catch (err) {
+        txError.textContent = err.message;
+        txError.classList.remove("hidden");
+      }
     });
 
     const txForm = el("div", { class: "inline-form" }, [
@@ -134,6 +168,7 @@ function renderBoxes(boxes) {
         header,
         el("h3", { text: "Nova movimentação" }),
         txForm,
+        txError,
         el("h3", { text: "Histórico" }),
         txTable,
       ])
