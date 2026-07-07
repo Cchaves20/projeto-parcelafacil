@@ -1,0 +1,6 @@
+# Instalar dependências
+pip install -r backend/requirements.txt
+
+# Iniciar o servidor (a partir da pasta backend/)
+cd backend
+uvicorn app.main:app --reload --port 8000
