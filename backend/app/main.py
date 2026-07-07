@@ -58,4 +58,7 @@ def root():
 
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
+if not FRONTEND_DIR.exists():
+    # Railway mounts the repo at /app; backend/ is one level below root
+    FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent.parent / "frontend"
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
