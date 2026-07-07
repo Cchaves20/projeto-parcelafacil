@@ -57,8 +57,10 @@ def root():
     return RedirectResponse(url="/pages/dashboard.html")
 
 
-FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
+_base = Path(__file__).resolve().parent.parent
+# Production (Railway): frontend copied to backend/frontend_dist during build
+FRONTEND_DIR = _base / "frontend_dist"
 if not FRONTEND_DIR.exists():
-    # Railway mounts the repo at /app; backend/ is one level below root
-    FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent.parent / "frontend"
+    # Local dev: frontend lives at repo root level
+    FRONTEND_DIR = _base.parent / "frontend"
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
