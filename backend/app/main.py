@@ -58,9 +58,14 @@ def root():
 
 
 _base = Path(__file__).resolve().parent.parent
-# Production (Railway): frontend copied to backend/frontend_dist during build
-FRONTEND_DIR = _base / "frontend_dist"
-if not FRONTEND_DIR.exists():
-    # Local dev: frontend lives at repo root level
-    FRONTEND_DIR = _base.parent / "frontend"
+_candidates = [
+    _base / "frontend_dist",          # Dockerfile or nixpacks (cd backend)
+    Path("/app/frontend_dist"),        # Dockerfile absolute
+    Path("/app/backend/frontend_dist"), # nixpacks absolute
+    _base.parent / "frontend",         # local dev
+    Path("/frontend"),                 # nixpacks alternate
+]
+FRONTEND_DIR = next((p for p in _candidates if p.exists()), None)
+if FRONTEND_DIR is None:
+    raise RuntimeError(f"Frontend directory not found. Tried: {[str(p) for p in _candidates]}")
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
