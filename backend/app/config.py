@@ -1,3 +1,5 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,4 +11,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True)
 
 
-settings = Settings(database_url="sqlite:///./parcelafacil.db")
+# Railway (and other PaaS) inject DATABASE_URL as an env var.
+# In local dev without that var, fall back to SQLite.
+_db_url = os.environ.get("DATABASE_URL", "sqlite:///./parcelafacil.db")
+
+# SQLAlchemy requires postgresql:// but Railway sometimes provides postgres://
+if _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+
+settings = Settings(database_url=_db_url)
