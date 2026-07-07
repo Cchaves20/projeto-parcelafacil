@@ -59,13 +59,23 @@ def root():
 
 _base = Path(__file__).resolve().parent.parent
 _candidates = [
-    _base / "frontend_dist",          # Dockerfile or nixpacks (cd backend)
-    Path("/app/frontend_dist"),        # Dockerfile absolute
-    Path("/app/backend/frontend_dist"), # nixpacks absolute
-    _base.parent / "frontend",         # local dev
-    Path("/frontend"),                 # nixpacks alternate
+    _base / "frontend_dist",           # Dockerfile or nixpacks (cd backend)
+    Path("/app/frontend_dist"),         # Dockerfile absolute
+    Path("/app/backend/frontend_dist"), # nixpacks (repo at /app, cd backend)
+    Path("/app/frontend"),              # nixpacks (repo at /app, frontend dir)
+    _base.parent / "frontend",          # local dev or nixpacks
+    Path("/frontend"),                  # last resort
 ]
 FRONTEND_DIR = next((p for p in _candidates if p.exists()), None)
 if FRONTEND_DIR is None:
-    raise RuntimeError(f"Frontend directory not found. Tried: {[str(p) for p in _candidates]}")
+    import os
+    try:
+        _tree = os.listdir("/app")
+    except Exception:
+        _tree = []
+    raise RuntimeError(
+        f"Frontend directory not found. __file__={__file__!r}, "
+        f"/app contents={_tree}, "
+        f"tried={[str(p) for p in _candidates]}"
+    )
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
